@@ -1,0 +1,5 @@
+package: docker-workbench
+
+import:
+- package: github.com/codegangsta/cli
+  version: v1.14.0
