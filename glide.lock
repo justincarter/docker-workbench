@@ -1,8 +1,6 @@
-hash: 0cce97b7a3ce1b46cb41bbb21cba57f7a420eb6a370440c2e11c533766f81a1f
-updated: 2016-04-29T22:59:28.7565896+10:00
+hash: 75deb3ee87272d5be8d2da6b433365fce9924ab90a3cab533f2ddc7cd62a2c44
+updated: 2016-05-30T11:18:44.9198381+10:00
 imports:
-- name: github.com/codegangsta/cli
-  version: 71f57d300dd6a780ac1856c005c4b518cfd498ec
-  subpackages:
-  - github.com\codegangsta\cli
+- name: github.com/urfave/cli
+  version: 01857ac33766ce0c93856370626f9799281c14f4
 devImports: []

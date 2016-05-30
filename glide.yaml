@@ -1,5 +1,5 @@
-package: docker-workbench
+package: github.com/justincarter/docker-workbench
 
 import:
-- package: github.com/codegangsta/cli
-  version: v1.14.0
+- package: github.com/urfave/cli
+  version: v1.17.0

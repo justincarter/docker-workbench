@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 	"github.com/justincarter/docker-workbench/machine"
 )
 
