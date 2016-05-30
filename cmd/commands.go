@@ -35,7 +35,7 @@ func Version(c *cli.Context) {
 }
 
 // Create command
-func Create(c *cli.Context) {
+func Create(c *cli.Context) error {
 
 	// get name from the current working directory
 	workdir, _ := os.Getwd()
@@ -62,10 +62,12 @@ func Create(c *cli.Context) {
 	machine.EvalEnv(name)
 	machine.EvalHint(name, false)
 	printWorkbenchInfo("*", name)
+
+	return nil
 }
 
 // Up command
-func Up(c *cli.Context) {
+func Up(c *cli.Context) error {
 
 	// get name from the current working directory
 	workdir, _ := os.Getwd()
@@ -92,6 +94,7 @@ func Up(c *cli.Context) {
 			os.Exit(1)
 		}
 	}
+	return nil
 }
 
 // printWorkbenchInfo prints the application URL using the given app name and workbench machine IP
