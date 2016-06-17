@@ -106,7 +106,7 @@ func VBoxManagePath() string {
 	if path == "" {
 		path = os.Getenv("VBOX_MSI_INSTALL_PATH")
 	}
-	if path != "" {
+	if path != "" && path[len(path)-1:] != string(os.PathSeparator) {
 		path += string(os.PathSeparator)
 	}
 	return path + "VBoxManage"
