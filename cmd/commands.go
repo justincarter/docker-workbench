@@ -3,10 +3,12 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 
-	"github.com/urfave/cli"
 	"github.com/justincarter/docker-workbench/machine"
+	"github.com/urfave/cli"
 )
 
 // Commands config
@@ -21,6 +23,26 @@ var Commands = []cli.Command{
 		Usage:  "Start the workbench machine and show details",
 		Action: Up,
 	},
+}
+
+// FlightCheck helper checks for prerequisite commands
+func FlightCheck() error {
+
+	toolbox := []string{"docker", "docker-machine", "docker-compose"}
+	missing := []string{}
+	for _, c := range toolbox {
+		if _, err := exec.LookPath(c); err != nil {
+			missing = append(missing, c)
+		}
+	}
+	if len(missing) > 0 {
+		return fmt.Errorf("docker-workbench: %s was not found. Make sure you have installed Docker Toolbox", strings.Join(missing, ", "))
+	}
+	if _, err := exec.LookPath(machine.VBoxManagePath()); err != nil {
+		return fmt.Errorf("docker-workbench: VBoxManage was not found. Make sure you have installed VirtualBox")
+	}
+
+	return nil
 }
 
 // NotFound command

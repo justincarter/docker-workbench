@@ -3,18 +3,16 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/exec"
-	"strings"
 
-	"github.com/urfave/cli"
 	"github.com/justincarter/docker-workbench/cmd"
+	"github.com/urfave/cli"
 )
 
 const version = "0.5"
 
 func main() {
 
-	if err := flightCheck(); err != nil {
+	if err := cmd.FlightCheck(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -34,23 +32,4 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		fmt.Println(err)
 	}
-}
-
-func flightCheck() error {
-
-	toolbox := []string{"docker", "docker-machine", "docker-compose"}
-	missing := []string{}
-	for _, c := range toolbox {
-		if _, err := exec.LookPath(c); err != nil {
-			missing = append(missing, c)
-		}
-	}
-	if len(missing) > 0 {
-		return fmt.Errorf("docker-workbench: %s was not found. Make sure you have installed Docker Toolbox", strings.Join(missing, ", "))
-	}
-	if _, err := exec.LookPath("VBoxManage"); err != nil {
-		return fmt.Errorf("docker-workbench: VBoxManage was not found. Make sure you have installed VirtualBox")
-	}
-
-	return nil
 }
