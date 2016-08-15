@@ -8,7 +8,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-const version = "1.0"
+const version = "1.1"
 
 func main() {
 

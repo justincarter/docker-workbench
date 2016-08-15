@@ -43,7 +43,7 @@ To use `docker-workbench` you will also need to install the following;
 
 ## Usage
 
-    docker-workbench v1.0
+    docker-workbench v1.1
     Provision a Docker Workbench for use with docker-machine and docker-compose
 
     Usage:
@@ -56,6 +56,7 @@ To use `docker-workbench` you will also need to install the following;
     Commands:
     create        Create a new workbench machine in the current directory
     up            Start the workbench machine and show details
+    proxy         Start a reverse proxy to the workbench machine
     help          Shows a list of commands or help for one command
 
     Run 'docker-workbench help COMMAND' for more information on a command.
@@ -166,6 +167,24 @@ When the application finishes starting up you be able to browse to the app using
     myapp_1 | 17-Jun-2016 08:47:18.035 INFO [main] org.apache.catalina.startup.Catalina.start Server startup in 1003 ms
 
 Any containerised web application that listens on port 80 should be able to work with Docker Workbench. 
+
+
+## Run a simple reverse proxy
+
+Docker Workbench has a simple reverse proxy built-in which can be useful for allowing other network devices on your LAN (other PCs, tablets, phones, etc) to access the applications running inside your Docker Machine VMs.
+
+The `proxy` command works just like the `up` command and will detect the application and workbench details automatically, giving you a list of addresses that the proxy is listening on;
+
+    $ docker-workbench proxy
+    Starting reverse proxy on port 9999...
+    Listening on:
+
+    http://myapp.192.168.0.10.nip.io:9999/
+    http://myapp.192.168.99.1.nip.io:9999/
+
+    Press Ctrl-C to terminate proxy
+
+Note that `192.168.99.1` is the default Docker Machine network interface which will only be accessible from your own PC. One of the other addresses will most likely be the actual network interface that other devices will be able to browse to. In this example, another network device would be able to browse to `http://myapp.192.168.0.10.nip.io:9999/` to see the application running.
 
 
 ## Advanced Usage

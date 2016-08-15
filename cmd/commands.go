@@ -2,6 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"net"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -22,6 +26,11 @@ var Commands = []cli.Command{
 		Name:   "up",
 		Usage:  "Start the workbench machine and show details",
 		Action: Up,
+	},
+	{
+		Name:   "proxy",
+		Usage:  "Start a reverse proxy to the workbench machine",
+		Action: Proxy,
 	},
 }
 
@@ -116,6 +125,69 @@ func Up(c *cli.Context) error {
 			os.Exit(1)
 		}
 	}
+	return nil
+}
+
+// Proxy command
+func Proxy(c *cli.Context) error {
+
+	// get name from the current working directory
+	workdir, _ := os.Getwd()
+	name := filepath.Base(workdir)
+	app := ""
+
+	if machine.Exists(name) {
+		fmt.Printf("\nCould not find the app to proxy for Workbench machine '%s'", name)
+		os.Exit(1)
+	} else {
+		// get name from the parent of the current working directory
+		app = name
+		name = filepath.Base(filepath.Dir(workdir))
+
+		if machine.Exists(name) {
+			ip, ok := machine.IP(name)
+			if ok == true {
+				proxy := httputil.NewSingleHostReverseProxy(&url.URL{
+					Scheme: "http",
+					Host:   fmt.Sprintf("%s.%s.nip.io", app, ip),
+				})
+				fmt.Println("Starting reverse proxy on port 9999...")
+
+				ifaces, err := net.Interfaces()
+				if err != nil {
+					fmt.Println("\nCould not find local network interfaces")
+					os.Exit(1)
+				}
+				fmt.Printf("Listening on:\n\n")
+				for _, i := range ifaces {
+					addrs, _ := i.Addrs()
+					for _, addr := range addrs {
+						var ip string
+						switch v := addr.(type) {
+						case *net.IPNet:
+							ip = v.IP.String()
+						case *net.IPAddr:
+							ip = v.IP.String()
+						}
+						if len(ip) <= 16 && ip != "127.0.0.1" && ip != "::1" && strings.Split(ip, ".")[0] != "169" {
+							fmt.Printf("http://%s.%s.nip.io:9999/\n", app, ip)
+						}
+					}
+				}
+				fmt.Println("\nPress Ctrl-C to terminate proxy")
+
+				http.ListenAndServe(":9999", proxy)
+			} else {
+				fmt.Println("\nCould not find the IP address for this workbench")
+				os.Exit(1)
+			}
+
+		} else {
+			fmt.Printf("Workbench machine '%s' not found.\n", app)
+			os.Exit(1)
+		}
+	}
+
 	return nil
 }
 
