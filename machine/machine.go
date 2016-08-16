@@ -64,10 +64,15 @@ func EvalHint(name string, checkenv bool) {
 func IP(name string) (ip string, success bool) {
 	out, _ := run.ReadOutput("docker-machine", "ip %s", name)
 	ip = strings.Split(string(out), "\n")[0]
+	success = ValidIPv4(ip)
+	return
+}
+
+// ValidIPv4 returns true for valid IPv4 addresses
+func ValidIPv4(ip string) bool {
 	// validate IP address
 	re, _ := regexp.Compile(`^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`)
-	success = re.Match([]byte(ip))
-	return
+	return re.Match([]byte(ip))
 }
 
 // SSH into the docker machine to run a command

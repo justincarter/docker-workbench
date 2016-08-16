@@ -56,7 +56,7 @@ To use `docker-workbench` you will also need to install the following;
     Commands:
     create        Create a new workbench machine in the current directory
     up            Start the workbench machine and show details
-    proxy         Start a reverse proxy to the workbench machine
+    proxy         Start a reverse proxy to the app in the current directory
     help          Shows a list of commands or help for one command
 
     Run 'docker-workbench help COMMAND' for more information on a command.

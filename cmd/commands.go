@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -29,7 +30,7 @@ var Commands = []cli.Command{
 	},
 	{
 		Name:   "proxy",
-		Usage:  "Start a reverse proxy to the workbench machine",
+		Usage:  "Start a reverse proxy to the app in the current directory",
 		Action: Proxy,
 	},
 }
@@ -169,14 +170,20 @@ func Proxy(c *cli.Context) error {
 						case *net.IPAddr:
 							ip = v.IP.String()
 						}
-						if len(ip) <= 16 && ip != "127.0.0.1" && ip != "::1" && strings.Split(ip, ".")[0] != "169" {
+						// output valid local IPv4 addresses, excluding loopbacks and docker machine default interface
+						if machine.ValidIPv4(ip) && ip != "127.0.0.1" && ip != "192.168.99.1" && strings.Split(ip, ".")[0] != "169" {
 							fmt.Printf("http://%s.%s.nip.io:9999/\n", app, ip)
 						}
 					}
 				}
 				fmt.Println("\nPress Ctrl-C to terminate proxy")
 
-				http.ListenAndServe(":9999", proxy)
+				l, err := net.Listen("tcp4", ":9999")
+				if err != nil {
+					log.Fatal(err)
+				}
+				log.Fatal(http.Serve(l, proxy))
+
 			} else {
 				fmt.Println("\nCould not find the IP address for this workbench")
 				os.Exit(1)
