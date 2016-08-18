@@ -101,101 +101,101 @@ func Create(c *cli.Context) error {
 // Up command
 func Up(c *cli.Context) error {
 
-	// get name from the current working directory
-	workdir, _ := os.Getwd()
-	name := filepath.Base(workdir)
+	app, name, err := getWorkbenchContext()
 
-	if machine.Exists(name) {
-		machine.Start(name)
-		machine.EvalHint(name, true)
-		printWorkbenchInfo("*", name)
-	} else {
-		// get name from the parent of the current working directory
-		app := name
-		name := filepath.Base(filepath.Dir(workdir))
-
-		if machine.Exists(name) {
-			machine.Start(name)
-			machine.EvalHint(name, true)
-
-			fmt.Println("\nStart the application:")
-			fmt.Println("docker-compose up")
-			printWorkbenchInfo(app, name)
-		} else {
-			fmt.Printf("Workbench machine '%s' not found.\n", app)
-			os.Exit(1)
-		}
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
+
+	machine.Start(name)
+	machine.EvalHint(name, true)
+	if app != "*" {
+		fmt.Println("\nStart the application:")
+		fmt.Println("docker-compose up")
+	}
+	printWorkbenchInfo(app, name)
+
 	return nil
 }
 
 // Proxy command
 func Proxy(c *cli.Context) error {
 
+	app, name, err := getWorkbenchContext()
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	if app == "*" {
+		fmt.Printf("\nCould not find the app to proxy for Workbench machine '%s'. Try running from an app directory?\n", name)
+		os.Exit(1)
+	}
+
+	ip, ok := machine.IP(name)
+	if ok == true {
+		proxy := httputil.NewSingleHostReverseProxy(&url.URL{
+			Scheme: "http",
+			Host:   fmt.Sprintf("%s.%s.nip.io", app, ip),
+		})
+		fmt.Println("Starting reverse proxy on port 9999...")
+
+		ifaces, err := net.Interfaces()
+		if err != nil {
+			fmt.Println("\nCould not find local network interfaces")
+			os.Exit(1)
+		}
+		fmt.Printf("Listening on:\n\n")
+		for _, i := range ifaces {
+			addrs, _ := i.Addrs()
+			for _, addr := range addrs {
+				var ip string
+				switch v := addr.(type) {
+				case *net.IPNet:
+					ip = v.IP.String()
+				case *net.IPAddr:
+					ip = v.IP.String()
+				}
+				// output valid local IPv4 addresses, excluding loopbacks and docker machine default interface
+				if machine.ValidIPv4(ip) && ip != "127.0.0.1" && ip != "192.168.99.1" && strings.Split(ip, ".")[0] != "169" {
+					fmt.Printf("http://%s.%s.nip.io:9999/\n", app, ip)
+				}
+			}
+		}
+		fmt.Println("\nPress Ctrl-C to terminate proxy")
+
+		l, err := net.Listen("tcp4", ":9999")
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Fatal(http.Serve(l, proxy))
+
+	} else {
+		fmt.Println("\nCould not find the IP address for this workbench. Have you run docker-workbench up?")
+		os.Exit(1)
+	}
+
+	return nil
+}
+
+// getWorkbenchContext finds the application name and workbench machine name  from the current directory
+func getWorkbenchContext() (app string, name string, err error) {
+	err = nil
+	app = "*"
 	// get name from the current working directory
 	workdir, _ := os.Getwd()
-	name := filepath.Base(workdir)
-	app := ""
-
-	if machine.Exists(name) {
-		fmt.Printf("\nCould not find the app to proxy for Workbench machine '%s'", name)
-		os.Exit(1)
-	} else {
+	name = filepath.Base(workdir)
+	if !machine.Exists(name) {
 		// get name from the parent of the current working directory
 		app = name
 		name = filepath.Base(filepath.Dir(workdir))
 
-		if machine.Exists(name) {
-			ip, ok := machine.IP(name)
-			if ok == true {
-				proxy := httputil.NewSingleHostReverseProxy(&url.URL{
-					Scheme: "http",
-					Host:   fmt.Sprintf("%s.%s.nip.io", app, ip),
-				})
-				fmt.Println("Starting reverse proxy on port 9999...")
-
-				ifaces, err := net.Interfaces()
-				if err != nil {
-					fmt.Println("\nCould not find local network interfaces")
-					os.Exit(1)
-				}
-				fmt.Printf("Listening on:\n\n")
-				for _, i := range ifaces {
-					addrs, _ := i.Addrs()
-					for _, addr := range addrs {
-						var ip string
-						switch v := addr.(type) {
-						case *net.IPNet:
-							ip = v.IP.String()
-						case *net.IPAddr:
-							ip = v.IP.String()
-						}
-						// output valid local IPv4 addresses, excluding loopbacks and docker machine default interface
-						if machine.ValidIPv4(ip) && ip != "127.0.0.1" && ip != "192.168.99.1" && strings.Split(ip, ".")[0] != "169" {
-							fmt.Printf("http://%s.%s.nip.io:9999/\n", app, ip)
-						}
-					}
-				}
-				fmt.Println("\nPress Ctrl-C to terminate proxy")
-
-				l, err := net.Listen("tcp4", ":9999")
-				if err != nil {
-					log.Fatal(err)
-				}
-				log.Fatal(http.Serve(l, proxy))
-
-			} else {
-				fmt.Println("\nCould not find the IP address for this workbench")
-				os.Exit(1)
-			}
-
-		} else {
-			fmt.Printf("Workbench machine '%s' not found.\n", app)
-			os.Exit(1)
+		if !machine.Exists(name) {
+			err = fmt.Errorf("Workbench machine '%s' not found.", app)
 		}
 	}
-
-	return nil
+	return
 }
 
 // printWorkbenchInfo prints the application URL using the given app name and workbench machine IP
