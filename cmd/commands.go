@@ -121,9 +121,7 @@ func Up(c *cli.Context) error {
 
 // Proxy command
 func Proxy(c *cli.Context) error {
-
 	app, name, err := getWorkbenchContext()
-
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -135,33 +133,16 @@ func Proxy(c *cli.Context) error {
 
 	ip, ok := machine.IP(name)
 	if ok == true {
-		proxy := httputil.NewSingleHostReverseProxy(&url.URL{
-			Scheme: "http",
-			Host:   fmt.Sprintf("%s.%s.nip.io", app, ip),
-		})
 		fmt.Println("Starting reverse proxy on port 9999...")
-
-		ifaces, err := net.Interfaces()
+		ips, err := getProxyIPs()
 		if err != nil {
-			fmt.Println("\nCould not find local network interfaces")
+			fmt.Println(err)
 			os.Exit(1)
 		}
+
 		fmt.Printf("Listening on:\n\n")
-		for _, i := range ifaces {
-			addrs, _ := i.Addrs()
-			for _, addr := range addrs {
-				var ip string
-				switch v := addr.(type) {
-				case *net.IPNet:
-					ip = v.IP.String()
-				case *net.IPAddr:
-					ip = v.IP.String()
-				}
-				// output valid local IPv4 addresses, excluding loopbacks and docker machine default interface
-				if machine.ValidIPv4(ip) && ip != "127.0.0.1" && ip != "192.168.99.1" && strings.Split(ip, ".")[0] != "169" {
-					fmt.Printf("http://%s.%s.nip.io:9999/\n", app, ip)
-				}
-			}
+		for _, ip := range ips {
+			fmt.Printf("http://%s.%s.nip.io:9999/\n", app, ip)
 		}
 		fmt.Println("\nPress Ctrl-C to terminate proxy")
 
@@ -169,6 +150,10 @@ func Proxy(c *cli.Context) error {
 		if err != nil {
 			log.Fatal(err)
 		}
+		proxy := httputil.NewSingleHostReverseProxy(&url.URL{
+			Scheme: "http",
+			Host:   fmt.Sprintf("%s.%s.nip.io", app, ip),
+		})
 		log.Fatal(http.Serve(l, proxy))
 
 	} else {
@@ -208,4 +193,37 @@ func printWorkbenchInfo(app, name string) {
 		fmt.Println("\nCould not find the IP address for this workbench")
 		os.Exit(1)
 	}
+}
+
+// getProxyIPs returns a slice of IP address strings that should be browsable when using the Proxy command
+func getProxyIPs() ([]string, error) {
+	var e error
+	ips := []string{}
+
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		e = fmt.Errorf("\nCould not find local network interfaces")
+	}
+
+	for _, i := range ifaces {
+		addrs, _ := i.Addrs()
+		for _, addr := range addrs {
+			var ip string
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP.String()
+			case *net.IPAddr:
+				ip = v.IP.String()
+			}
+			// output valid local IPv4 addresses, excluding loopbacks and docker machine default interface
+			if machine.ValidIPv4(ip) && ip != "127.0.0.1" && ip != "192.168.99.1" && strings.Split(ip, ".")[0] != "169" {
+				ips = append(ips, ip)
+			}
+		}
+	}
+	if len(ips) == 0 {
+		e = fmt.Errorf("\nCould not find local network interfaces")
+	}
+
+	return ips, e
 }
