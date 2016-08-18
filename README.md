@@ -1,5 +1,11 @@
 # Docker Workbench
 
+[![Build Status](https://travis-ci.org/justincarter/docker-workbench.svg?branch=master)](https://travis-ci.org/justincarter/docker-workbench)
+[![codebeat badge](https://codebeat.co/badges/271f8ad5-385f-4edb-89da-12d8ce8fa654)](https://codebeat.co/projects/github-com-justincarter-docker-workbench)
+[![Go Report Card](https://goreportcard.com/badge/github.com/justincarter/docker-workbench)](https://goreportcard.com/report/github.com/justincarter/docker-workbench)
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/justincarter/docker-workbench/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/justincarter/docker-workbench.svg?maxAge=604800)](https://github.com/justincarter/docker-workbench/releases/latest)
+
 `docker-workbench` is a utility for simplifying the creation of Docker-based development environments in VirtualBox with `docker-machine`.
 
 The primary goals of `docker-workbench` are;
