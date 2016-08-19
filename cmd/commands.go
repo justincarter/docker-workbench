@@ -101,7 +101,7 @@ func Create(c *cli.Context) error {
 // Up command
 func Up(c *cli.Context) error {
 
-	app, name, err := getWorkbenchContext()
+	app, name, err := getWorkbenchContext(false)
 
 	if err != nil {
 		fmt.Println(err)
@@ -121,41 +121,27 @@ func Up(c *cli.Context) error {
 
 // Proxy command
 func Proxy(c *cli.Context) error {
-	app, name, err := getWorkbenchContext()
+	app, name, err := getWorkbenchContext(true)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	if app == "*" {
-		fmt.Printf("\nCould not find the app to proxy for Workbench machine '%s'. Try running from an app directory?\n", name)
-		os.Exit(1)
-	}
+	port := getProxyPort(c)
 
 	ip, ok := machine.IP(name)
 	if ok == true {
-		fmt.Println("Starting reverse proxy on port 9999...")
+		fmt.Printf("Starting reverse proxy on port %s...\n", port)
 		ips, err := getProxyIPs()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
 		fmt.Printf("Listening on:\n\n")
-		for _, ip := range ips {
-			fmt.Printf("http://%s.%s.nip.io:9999/\n", app, ip)
+		for _, thisip := range ips {
+			fmt.Printf("http://%s.%s.nip.io:%s/\n", app, thisip, port)
 		}
 		fmt.Println("\nPress Ctrl-C to terminate proxy")
-
-		l, err := net.Listen("tcp4", ":9999")
-		if err != nil {
-			log.Fatal(err)
-		}
-		proxy := httputil.NewSingleHostReverseProxy(&url.URL{
-			Scheme: "http",
-			Host:   fmt.Sprintf("%s.%s.nip.io", app, ip),
-		})
-		log.Fatal(http.Serve(l, proxy))
-
+		startProxy(app, name, ip, port)
 	} else {
 		fmt.Println("\nCould not find the IP address for this workbench. Have you run docker-workbench up?")
 		os.Exit(1)
@@ -165,7 +151,7 @@ func Proxy(c *cli.Context) error {
 }
 
 // getWorkbenchContext finds the application name and workbench machine name  from the current directory
-func getWorkbenchContext() (app string, name string, err error) {
+func getWorkbenchContext(requireApp bool) (app string, name string, err error) {
 	err = nil
 	app = "*"
 	// get name from the current working directory
@@ -179,6 +165,9 @@ func getWorkbenchContext() (app string, name string, err error) {
 		if !machine.Exists(name) {
 			err = fmt.Errorf("Workbench machine '%s' not found.", app)
 		}
+	}
+	if requireApp == true && app == "*" {
+		err = fmt.Errorf("\nCould not find the app to proxy for Workbench machine '%s'. Try running from an app directory?", name)
 	}
 	return
 }
@@ -226,4 +215,20 @@ func getProxyIPs() ([]string, error) {
 	}
 
 	return ips, e
+}
+
+func getProxyPort(c *cli.Context) string {
+	return "9999"
+}
+
+func startProxy(app, name, ip, port string) {
+	l, err := net.Listen("tcp4", fmt.Sprintf(":%s", port))
+	if err != nil {
+		log.Fatal(err)
+	}
+	proxy := httputil.NewSingleHostReverseProxy(&url.URL{
+		Scheme: "http",
+		Host:   fmt.Sprintf("%s.%s.nip.io", app, ip),
+	})
+	log.Fatal(http.Serve(l, proxy))
 }
