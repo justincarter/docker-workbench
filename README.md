@@ -106,7 +106,7 @@ Here is an example of a trivial web application called "myapp" using Lucee 4.5 a
 
 The reverse proxy included with Docker Workbench will automatically route traffic to any containers that listen on port 80 and are configured with a `VIRTUAL_HOST` environment variable that specifies the host headers (wild cards allowed) that the application should respond to.
 
-With Docker Workbench is a requirement to use highly consistent naming for folders and host headers because this makes configuration obvious.
+With Docker Workbench it is a requirement to use highly consistent naming for folders and host headers because this makes configuration obvious.
 
 The `docker-compose.yml` file for "myapp" looks like this:
 
@@ -149,7 +149,7 @@ The final step is to start the application using Docker Compose, as mentioned in
 
     $ docker-compose up
 
-When the application finishes starting up you be able to browse to the app using the URL above, and output similar to below will appear in the console;
+When the application finishes starting up you will be able to browse to the app using the URL above, and output similar to below will appear in the console;
 
     myapp_1 | lucee-server-root:/opt/lucee/server/lucee-server
     myapp_1 | ===================================================================
@@ -219,3 +219,26 @@ For further info view the Docker Machine and Docker Compose reference documentat
 - https://docs.docker.com/machine/reference/
 - https://docs.docker.com/compose/reference/overview/
 
+### Multiple Docker Workbenches
+
+For situations where you have many applications and you want to run them in separate VMs (e.g. a VM per client, or a VM per group of related applications) you can use `docker-workbench create` to create a workbench from any directory. A simple way of managing your workbenches might be to have a `workbench` folder with several folders inside named by client or application group, and inside each of those a folder for each application. For example;
+
+    workbench
+    └── clientA
+        ├── myapp1
+        └── myapp2
+    └── clientB
+        └── anotherapp
+
+In this scenario you would create two VMs by running `docker-workbench create` from inside the `clientA` and `clientB` folders. Other than this, there is no difference to creating and using just a single VM -- all configuration is done exactly the same as described above.
+
+It's worth noting that even though your machines in this scenario would be called `clientA` and `clientB`, the shared folder inside the VM which is referred to in your `docker-compose.yml` file will always be named `/workbench` (the shared folder name inside the VM is not named after the VM). A `docker-compose.yml` file for clientB's "anotherapp" might look like this;
+
+    anotherapp:
+        image: lucee/lucee4-nginx
+        environment:
+            - "VIRTUAL_HOST=anotherapp.*"
+        volumes:
+            - "/workbench/anotherapp/www:/var/www"
+
+This also means that you can always run an app inside a Docker Workbench, regardless of what its name is, without modifying the `docker-compose.yml` file.
