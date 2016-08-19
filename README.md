@@ -4,7 +4,7 @@
 [![codebeat badge](https://codebeat.co/badges/271f8ad5-385f-4edb-89da-12d8ce8fa654)](https://codebeat.co/projects/github-com-justincarter-docker-workbench)
 [![Go Report Card](https://goreportcard.com/badge/github.com/justincarter/docker-workbench)](https://goreportcard.com/report/github.com/justincarter/docker-workbench)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/justincarter/docker-workbench/master/LICENSE)
-[![GitHub release](https://img.shields.io/github/release/justincarter/docker-workbench.svg?maxAge=604800)](https://github.com/justincarter/docker-workbench/releases/latest)
+[![GitHub release](https://img.shields.io/github/release/justincarter/docker-workbench.svg?maxAge=86400)](https://github.com/justincarter/docker-workbench/releases/latest)
 
 `docker-workbench` is a utility for simplifying the creation of Docker-based development environments in VirtualBox with `docker-machine`.
 
@@ -192,6 +192,10 @@ The `proxy` command works just like the `up` command and will detect the applica
 In this example another network device would be able to browse to `http://myapp.192.168.0.10.nip.io:8080/` to see the application running.
 
 Note that the default Docker Machine network interface (usually `192.168.99.1`) and other loopback (`127.0.0.1`) or link local (`169.x.x.x`) addresses will not be shown here.
+
+You can also start the proxy on a port number other than the default `8080` by using the `--port` or `-p` flag:
+
+    $ docker-workbench proxy -p 9001
 
 
 ## Advanced Usage
