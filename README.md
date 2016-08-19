@@ -182,15 +182,16 @@ Docker Workbench has a simple reverse proxy built-in which can be useful for all
 The `proxy` command works just like the `up` command and will detect the application and workbench details automatically, giving you a list of addresses that the proxy is listening on;
 
     $ docker-workbench proxy
-    Starting reverse proxy on port 9999...
+    Starting reverse proxy on port 8080...
     Listening on:
 
-    http://myapp.192.168.0.10.nip.io:9999/
-    http://myapp.192.168.99.1.nip.io:9999/
+    http://myapp.192.168.0.10.nip.io:8080/
 
     Press Ctrl-C to terminate proxy
 
-Note that `192.168.99.1` is the default Docker Machine network interface which will only be accessible from your own PC. One of the other addresses will most likely be the actual network interface that other devices will be able to browse to. In this example, another network device would be able to browse to `http://myapp.192.168.0.10.nip.io:9999/` to see the application running.
+In this example another network device would be able to browse to `http://myapp.192.168.0.10.nip.io:8080/` to see the application running.
+
+Note that the default Docker Machine network interface (usually `192.168.99.1`) and other loopback (`127.0.0.1`) or link local (`169.x.x.x`) addresses will not be shown here.
 
 
 ## Advanced Usage
