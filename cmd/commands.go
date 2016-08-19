@@ -187,13 +187,22 @@ func printWorkbenchInfo(app, name string) {
 // getProxyIPs returns a slice of IP address strings that should be browsable when using the Proxy command
 func getProxyIPs() ([]string, error) {
 	var e error
-	ips := []string{}
 
 	ifaces, err := net.Interfaces()
 	if err != nil {
 		e = fmt.Errorf("\nCould not find local network interfaces")
 	}
 
+	ips := getIPsFromIfaces(ifaces)
+	if len(ips) == 0 {
+		e = fmt.Errorf("\nCould not find local network interfaces")
+	}
+
+	return ips, e
+}
+
+func getIPsFromIfaces(ifaces []net.Interface) []string {
+	ips := []string{}
 	for _, i := range ifaces {
 		addrs, _ := i.Addrs()
 		for _, addr := range addrs {
@@ -204,17 +213,20 @@ func getProxyIPs() ([]string, error) {
 			case *net.IPAddr:
 				ip = v.IP.String()
 			}
-			// output valid local IPv4 addresses, excluding loopbacks and docker machine default interface
-			if machine.ValidIPv4(ip) && ip != "127.0.0.1" && ip != "192.168.99.1" && strings.Split(ip, ".")[0] != "169" {
+			if validProxyIP(ip) {
 				ips = append(ips, ip)
 			}
 		}
 	}
-	if len(ips) == 0 {
-		e = fmt.Errorf("\nCould not find local network interfaces")
-	}
+	return ips
+}
 
-	return ips, e
+func validProxyIP(ip string) bool {
+	// disallow non-IPv4 addresses, loopback interfaces and docker machine default interface
+	if !machine.ValidIPv4(ip) || ip == "127.0.0.1" || ip == "192.168.99.1" || strings.Split(ip, ".")[0] == "169" {
+		return false
+	}
+	return true
 }
 
 func getProxyPort(c *cli.Context) string {
