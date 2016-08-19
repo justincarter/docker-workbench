@@ -35,6 +35,12 @@ var Commands = []cli.Command{
 	},
 }
 
+type workbench struct {
+	app  string
+	name string
+	//ip   string
+}
+
 // FlightCheck helper checks for prerequisite commands
 func FlightCheck() error {
 
@@ -100,35 +106,34 @@ func Create(c *cli.Context) error {
 
 // Up command
 func Up(c *cli.Context) error {
-
-	app, name, err := getWorkbenchContext(false)
-
+	w, err := getWorkbenchContext(false)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	machine.Start(name)
-	machine.EvalHint(name, true)
-	if app != "*" {
+	machine.Start(w.name)
+	machine.EvalHint(w.name, true)
+	if w.app != "*" {
 		fmt.Println("\nStart the application:")
 		fmt.Println("docker-compose up")
 	}
-	printWorkbenchInfo(app, name)
+	printWorkbenchInfo(w.app, w.name)
 
 	return nil
 }
 
 // Proxy command
 func Proxy(c *cli.Context) error {
-	app, name, err := getWorkbenchContext(true)
+	w, err := getWorkbenchContext(true)
+
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	port := getProxyPort(c)
 
-	ip, ok := machine.IP(name)
+	ip, ok := machine.IP(w.name)
 	if ok == true {
 		fmt.Printf("Starting reverse proxy on port %s...\n", port)
 		ips, err := getProxyIPs()
@@ -138,10 +143,10 @@ func Proxy(c *cli.Context) error {
 		}
 		fmt.Printf("Listening on:\n\n")
 		for _, thisip := range ips {
-			fmt.Printf("http://%s.%s.nip.io:%s/\n", app, thisip, port)
+			fmt.Printf("http://%s.%s.nip.io:%s/\n", w.app, thisip, port)
 		}
 		fmt.Println("\nPress Ctrl-C to terminate proxy")
-		startProxy(app, name, ip, port)
+		startProxy(w, ip, port)
 	} else {
 		fmt.Println("\nCould not find the IP address for this workbench. Have you run docker-workbench up?")
 		os.Exit(1)
@@ -151,23 +156,26 @@ func Proxy(c *cli.Context) error {
 }
 
 // getWorkbenchContext finds the application name and workbench machine name  from the current directory
-func getWorkbenchContext(requireApp bool) (app string, name string, err error) {
+func getWorkbenchContext(requireApp bool) (w workbench, err error) {
 	err = nil
-	app = "*"
 	// get name from the current working directory
 	workdir, _ := os.Getwd()
-	name = filepath.Base(workdir)
-	if !machine.Exists(name) {
-		// get name from the parent of the current working directory
-		app = name
-		name = filepath.Base(filepath.Dir(workdir))
+	w = workbench{
+		app:  "*",
+		name: filepath.Base(workdir),
+	}
 
-		if !machine.Exists(name) {
-			err = fmt.Errorf("Workbench machine '%s' not found.", app)
+	if !machine.Exists(w.name) {
+		// get name from the parent of the current working directory
+		w.app = w.name
+		w.name = filepath.Base(filepath.Dir(workdir))
+
+		if !machine.Exists(w.name) {
+			err = fmt.Errorf("Workbench machine '%s' not found.", w.app)
 		}
 	}
-	if requireApp == true && app == "*" {
-		err = fmt.Errorf("\nCould not find the app to proxy for Workbench machine '%s'. Try running from an app directory?", name)
+	if requireApp == true && w.app == "*" {
+		err = fmt.Errorf("\nCould not find the app to proxy for Workbench machine '%s'. Try running from an app directory?", w.name)
 	}
 	return
 }
@@ -233,14 +241,14 @@ func getProxyPort(c *cli.Context) string {
 	return "9999"
 }
 
-func startProxy(app, name, ip, port string) {
+func startProxy(w workbench, ip, port string) {
 	l, err := net.Listen("tcp4", fmt.Sprintf(":%s", port))
 	if err != nil {
 		log.Fatal(err)
 	}
 	proxy := httputil.NewSingleHostReverseProxy(&url.URL{
 		Scheme: "http",
-		Host:   fmt.Sprintf("%s.%s.nip.io", app, ip),
+		Host:   fmt.Sprintf("%s.%s.nip.io", w.app, ip),
 	})
 	log.Fatal(http.Serve(l, proxy))
 }
