@@ -17,29 +17,32 @@ The primary goals of `docker-workbench` are;
 
 ## Installation
 
-`docker-workbench` is written in Go. To install Go;
+### 1. Install Go
+
+`docker-workbench` is written in Go. To install and set up Go;
 
 1. Download and install Go (https://golang.org/)
-2. Create a `workspace` folder in a place of your choosing (e.g. `c:\workspace` or `~/workspace`)
-3. Set the `GOPATH` environment variable to the path you created
+2. Create a `workspace` folder to store your Go source and binaries (e.g. `c:\workspace` or `~/workspace`)
+3. Set the `GOPATH` environment variable to the path of the workspace folder you created
 4. Append to your `PATH` environment variable `%GOPATH%\bin` (for Windows) or `$GOPATH/bin` (for Linux/Mac)
+
+### 2. Install Docker Workbench
 
 To install `docker-workbench`;
 
 1. Run `go get -u github.com/justincarter/docker-workbench`
 
-
-## Requirements
+### 3. Install Additional Requirements
 
 To use `docker-workbench` you will also need to install the following;
 
-### For Windows and Mac
+#### For Windows and Mac
 
 1. Docker Toolbox (docker, docker-machine, docker-compose) (https://www.docker.com/products/docker-toolbox)
 2. Oracle VirtualBox 5.x (https://www.virtualbox.org/)
 3. Git Bash (https://git-for-windows.github.io/) (for Windows only)
 
-### For Linux
+#### For Linux
 
 1. Docker Engine (https://docs.docker.com/engine/installation/)
 2. Docker Machine (https://docs.docker.com/machine/install-machine/)
@@ -49,7 +52,7 @@ To use `docker-workbench` you will also need to install the following;
 
 ## Usage
 
-    docker-workbench v1.1
+    docker-workbench v1.2
     Provision a Docker Workbench for use with docker-machine and docker-compose
 
     Usage:
