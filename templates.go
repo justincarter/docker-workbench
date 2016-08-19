@@ -24,9 +24,7 @@ Usage:
 Description:
   {{.Description}}
 {{- end}}
-{{- if .Flags}}
+{{if .Flags}}
 Options:
-  {{range .Flags}}
-  {{.}}{{end}}
-{{- end}}
-`
+  {{range .Flags}}{{.}}
+  {{end}}{{end}}`

@@ -16,6 +16,13 @@ import (
 	"github.com/urfave/cli"
 )
 
+type workbench struct {
+	app  string
+	name string
+}
+
+var proxyPort string
+
 // Commands config
 var Commands = []cli.Command{
 	{
@@ -32,13 +39,15 @@ var Commands = []cli.Command{
 		Name:   "proxy",
 		Usage:  "Start a reverse proxy to the app in the current directory",
 		Action: Proxy,
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:        "port, p",
+				Value:       "8080",
+				Usage:       "Port number to start the proxy on",
+				Destination: &proxyPort,
+			},
+		},
 	},
-}
-
-type workbench struct {
-	app  string
-	name string
-	//ip   string
 }
 
 // FlightCheck helper checks for prerequisite commands
@@ -131,11 +140,10 @@ func Proxy(c *cli.Context) error {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	port := getProxyPort(c)
 
 	ip, ok := machine.IP(w.name)
 	if ok == true {
-		fmt.Printf("Starting reverse proxy on port %s...\n", port)
+		fmt.Printf("Starting reverse proxy on port %s...\n", proxyPort)
 		ips, err := getProxyIPs()
 		if err != nil {
 			fmt.Println(err)
@@ -143,10 +151,10 @@ func Proxy(c *cli.Context) error {
 		}
 		fmt.Printf("Listening on:\n\n")
 		for _, thisip := range ips {
-			fmt.Printf("http://%s.%s.nip.io:%s/\n", w.app, thisip, port)
+			fmt.Printf("http://%s.%s.nip.io:%s/\n", w.app, thisip, proxyPort)
 		}
 		fmt.Println("\nPress Ctrl-C to terminate proxy")
-		startProxy(w, ip, port)
+		startProxy(w, ip, proxyPort)
 	} else {
 		fmt.Println("\nCould not find the IP address for this workbench. Have you run docker-workbench up?")
 		os.Exit(1)
@@ -235,10 +243,6 @@ func validProxyIP(ip string) bool {
 		return false
 	}
 	return true
-}
-
-func getProxyPort(c *cli.Context) string {
-	return "9999"
 }
 
 func startProxy(w workbench, ip, port string) {
