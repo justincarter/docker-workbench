@@ -2,4 +2,4 @@ package: github.com/justincarter/docker-workbench
 
 import:
 - package: github.com/urfave/cli
-  version: v1.17.0
+  version: v1.18.1

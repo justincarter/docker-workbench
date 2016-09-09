@@ -1125,6 +1125,7 @@ func TestApp_Run_Version(t *testing.T) {
 func TestApp_Run_Categories(t *testing.T) {
 	app := NewApp()
 	app.Name = "categories"
+	app.HideHelp = true
 	app.Commands = []Command{
 		{
 			Name:     "command1",
@@ -1174,6 +1175,7 @@ func TestApp_Run_Categories(t *testing.T) {
 func TestApp_VisibleCategories(t *testing.T) {
 	app := NewApp()
 	app.Name = "visible-categories"
+	app.HideHelp = true
 	app.Commands = []Command{
 		{
 			Name:     "command1",
@@ -1213,6 +1215,7 @@ func TestApp_VisibleCategories(t *testing.T) {
 
 	app = NewApp()
 	app.Name = "visible-categories"
+	app.HideHelp = true
 	app.Commands = []Command{
 		{
 			Name:     "command1",
@@ -1247,6 +1250,7 @@ func TestApp_VisibleCategories(t *testing.T) {
 
 	app = NewApp()
 	app.Name = "visible-categories"
+	app.HideHelp = true
 	app.Commands = []Command{
 		{
 			Name:     "command1",
@@ -1451,4 +1455,17 @@ func TestHandleAction_WithInvalidFuncReturnSignature(t *testing.T) {
 	if exitErr.ExitCode() != 2 {
 		t.Fatalf("expected error exit code to be 2, but got: %v", exitErr.ExitCode())
 	}
+}
+
+func TestHandleAction_WithUnknownPanic(t *testing.T) {
+	defer func() { refute(t, recover(), nil) }()
+
+	var fn ActionFunc
+
+	app := NewApp()
+	app.Action = func(ctx *Context) error {
+		fn(ctx)
+		return nil
+	}
+	HandleAction(app.Action, NewContext(app, flagSet(app.Name, app.Flags), nil))
 }
