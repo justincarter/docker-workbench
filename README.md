@@ -12,7 +12,8 @@ The primary goals of `docker-workbench` are;
 
 1. To make it easy to create Docker machines in VirtualBox with sensible defaults (CPUs, disk size, RAM, etc)
 2. To make it easy to run multiple containerised web applications without managing DNS, hosts files or ports
-3. To provide a standard `/workbench` shared folder to allow `docker-compose` volumes work the same for multiple users, cross-platform 
+3. To provide a standard `/workbench` shared folder to allow `docker-compose` volumes work the same for multiple users, cross-platform
+4. To allow mobile, tablet and other network devices to easily access the containerised applications
 
 
 ## Installation
@@ -22,8 +23,8 @@ The primary goals of `docker-workbench` are;
 `docker-workbench` is written in Go. To install and set up Go;
 
 1. Download and install Go (https://golang.org/)
-2. Create a `workspace` folder to store your Go source and binaries (e.g. `c:\workspace` or `~/workspace`)
-3. Set the `GOPATH` environment variable to the path of the workspace folder you created
+2. Create a "workspace" folder to store your Go source and binaries (e.g. `c:\workspace` or `~/workspace`)
+3. Set the `GOPATH` environment variable to the path of the "workspace" folder you created
 4. Append to your `PATH` environment variable `%GOPATH%\bin` (for Windows) or `$GOPATH/bin` (for Linux/Mac)
 
 ### 2. Install Docker Workbench
@@ -52,7 +53,7 @@ To use `docker-workbench` you will also need to install the following;
 
 ## Usage
 
-    docker-workbench v1.2
+    docker-workbench v1.3
     Provision a Docker Workbench for use with docker-machine and docker-compose
 
     Usage:
@@ -224,9 +225,9 @@ For further info view the Docker Machine and Docker Compose reference documentat
 For situations where you have many applications and you want to run them in separate VMs (e.g. a VM per client, or a VM per group of related applications) you can use `docker-workbench create` to create a workbench from any directory. A simple way of managing your workbenches might be to have a `workbench` folder with several folders inside named by client or application group, and inside each of those a folder for each application. For example;
 
     workbench
-    └── clientA
-        ├── myapp1
-        └── myapp2
+    ├── clientA
+    │   ├── myapp1
+    │   └── myapp2
     └── clientB
         └── anotherapp
 
