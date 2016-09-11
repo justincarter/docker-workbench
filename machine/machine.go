@@ -41,7 +41,7 @@ func Create(name string) {
 
 // EvalEnv sets docker environment variables
 func EvalEnv(name string) {
-	out, _ := run.ReadOutput("docker-machine", "env %s --shell=bash", name)
+	out, _ := run.Output("docker-machine", "env", name, "--shell=bash")
 	env := parseEnvOutput(out)
 	for k, v := range env {
 		os.Setenv(k, v)
@@ -62,7 +62,7 @@ func PrintEvalHint(name string, checkenv bool) {
 
 // IP returns the IP address of the docker machine
 func IP(name string) (ip string, success bool) {
-	out, _ := run.ReadOutput("docker-machine", "ip %s", name)
+	out, _ := run.Output("docker-machine", "ip", name)
 	ip = strings.Split(string(out), "\n")[0]
 	success = ValidIPv4(ip)
 	return
@@ -77,17 +77,17 @@ func ValidIPv4(ip string) bool {
 
 // SSH into the docker machine to run a command
 func SSH(name, command string) {
-	run.Run("docker-machine", []string{"ssh", name, command})
+	run.Run("docker-machine", "ssh", name, command)
 }
 
 // Start the docker machine
 func Start(name string) {
-	run.Run("docker-machine", []string{"start", name})
+	run.Run("docker-machine", "start", name)
 }
 
 // Stop the docker machine
 func Stop(name string) {
-	run.Run("docker-machine", []string{"stop", name})
+	run.Run("docker-machine", "stop", name)
 }
 
 // parseEnvOutput parses the output from `docker-machine env` and returns a map
@@ -119,7 +119,7 @@ func VBoxManagePath() string {
 
 // Exists checks if a VM exists
 func Exists(name string) bool {
-	out, _ := run.ReadOutput(VBoxManagePath(), "list vms")
+	out, _ := run.Output(VBoxManagePath(), "list", "vms")
 	re := regexp.MustCompile("(?mi)^\"" + name + "\"")
 	return re.Match(out)
 }
@@ -127,5 +127,5 @@ func Exists(name string) bool {
 // ShareFolder adds a /workbench shared folder to the VM
 func ShareFolder(name, folder string) {
 	args := []string{"sharedfolder", "add", name, "--name", "workbench", "--hostpath", folder}
-	run.Run(VBoxManagePath(), args)
+	run.Run(VBoxManagePath(), args...)
 }
