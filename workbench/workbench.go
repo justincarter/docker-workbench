@@ -92,19 +92,23 @@ func getIPsFromIfaces(ifaces []net.Interface) []string {
 	for _, i := range ifaces {
 		addrs, _ := i.Addrs()
 		for _, addr := range addrs {
-			var ip string
-			switch v := addr.(type) {
-			case *net.IPNet:
-				ip = v.IP.String()
-			case *net.IPAddr:
-				ip = v.IP.String()
-			}
-			if validProxyIP(ip) {
-				ips = append(ips, ip)
-			}
+			appendIPsFromAddr(&ips, addr)
 		}
 	}
 	return ips
+}
+
+func appendIPsFromAddr(ips *[]string, addr net.Addr) {
+	var ip string
+	switch v := addr.(type) {
+	case *net.IPNet:
+		ip = v.IP.String()
+	case *net.IPAddr:
+		ip = v.IP.String()
+	}
+	if validProxyIP(ip) {
+		*ips = append(*ips, ip)
+	}
 }
 
 func validProxyIP(ip string) bool {
