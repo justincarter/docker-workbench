@@ -107,7 +107,7 @@ func Create(c *cli.Context) error {
 
 	machine.Start(name)
 	machine.EvalEnv(name)
-	machine.EvalHint(name, false)
+	machine.PrintEvalHint(name, false)
 	printWorkbenchInfo("*", name)
 
 	return nil
@@ -122,7 +122,7 @@ func Up(c *cli.Context) error {
 	}
 
 	machine.Start(w.name)
-	machine.EvalHint(w.name, true)
+	machine.PrintEvalHint(w.name, true)
 	if w.app != "*" {
 		fmt.Println("\nStart the application:")
 		fmt.Println("docker-compose up")

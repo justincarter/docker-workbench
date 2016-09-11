@@ -48,8 +48,8 @@ func EvalEnv(name string) {
 	}
 }
 
-// EvalHint shows a hint about running docker env if required
-func EvalHint(name string, checkenv bool) {
+// PrintEvalHint shows a hint about running docker env if required
+func PrintEvalHint(name string, checkenv bool) {
 	showhint := true
 	if checkenv == true && os.Getenv("DOCKER_MACHINE_NAME") == name {
 		showhint = false
