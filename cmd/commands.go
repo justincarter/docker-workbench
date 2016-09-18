@@ -78,27 +78,28 @@ func Create(c *cli.Context) error {
 	// get name from the current working directory
 	workdir, _ := os.Getwd()
 	name := filepath.Base(workdir)
+	m := &machine.Machine{Name: name}
 
-	if !machine.Exists(name) {
-		machine.Create(name)
-		machine.EvalEnv(name)
+	if !m.Exists() {
+		m.Create()
+		m.EvalEnv()
 
 		fmt.Println("Configuring bootsync.sh...")
-		machine.SSH(name, "sudo echo 'sudo mkdir -p /workbench && sudo mount -t vboxsf -o uid=1000,gid=50 workbench /workbench' >  /tmp/bootsync.sh")
-		machine.SSH(name, "sudo cp /tmp/bootsync.sh /var/lib/boot2docker/bootsync.sh")
-		machine.SSH(name, "sudo chmod +x /var/lib/boot2docker/bootsync.sh")
+		m.SSH("sudo echo 'sudo mkdir -p /workbench && sudo mount -t vboxsf -o uid=1000,gid=50 workbench /workbench' >  /tmp/bootsync.sh")
+		m.SSH("sudo cp /tmp/bootsync.sh /var/lib/boot2docker/bootsync.sh")
+		m.SSH("sudo chmod +x /var/lib/boot2docker/bootsync.sh")
 
 		fmt.Println("Installing workbench apps...")
-		machine.SSH(name, "docker run -d --restart=always --name=workbench_proxy -p 80:80 -v '/var/run/docker.sock:/tmp/docker.sock:ro' daemonite/workbench-proxy")
-		machine.Stop(name)
+		m.SSH("docker run -d --restart=always --name=workbench_proxy -p 80:80 -v '/var/run/docker.sock:/tmp/docker.sock:ro' daemonite/workbench-proxy")
+		m.Stop()
 
 		fmt.Println("Adding /workbench shared folder...")
-		machine.ShareFolder(name, workdir)
+		m.ShareFolder(workdir)
 	}
 
-	machine.Start(name)
-	machine.EvalEnv(name)
-	machine.PrintEvalHint(name, false)
+	m.Start()
+	m.EvalEnv()
+	m.PrintEvalHint(false)
 
 	w, _ := workbench.NewWorkbench(false)
 	w.PrintWorkbenchInfo()
@@ -114,8 +115,9 @@ func Up(c *cli.Context) error {
 		os.Exit(1)
 	}
 
-	machine.Start(w.Name)
-	machine.PrintEvalHint(w.Name, true)
+	m := &machine.Machine{Name: w.Name}
+	m.Start()
+	m.PrintEvalHint(true)
 	if w.App != "*" {
 		fmt.Println("\nStart the application:")
 		fmt.Println("docker-compose up")
@@ -133,7 +135,7 @@ func Proxy(c *cli.Context) error {
 		os.Exit(1)
 	}
 
-	ip, ok := machine.IP(w.Name)
+	ip, ok := w.IP()
 	if !ok {
 		fmt.Println("\nCould not find the IP address for this workbench. Have you run docker-workbench up?")
 		os.Exit(1)

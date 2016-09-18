@@ -10,8 +10,13 @@ import (
 	"github.com/justincarter/docker-workbench/run"
 )
 
+// Machine represents a docker machine
+type Machine struct {
+	Name string
+}
+
 // Create the docker machine
-func Create(name string) {
+func (m *Machine) Create() {
 
 	// default configuration using docker-machine environment variables
 	env := map[string]string{
@@ -28,7 +33,7 @@ func Create(name string) {
 	}
 
 	// create the machine
-	args := fmt.Sprintf("create --driver virtualbox %s", name)
+	args := fmt.Sprintf("create --driver virtualbox %s", m.Name)
 	cmd := exec.Command("docker-machine", strings.Fields(args)...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -40,8 +45,8 @@ func Create(name string) {
 }
 
 // EvalEnv sets docker environment variables
-func EvalEnv(name string) {
-	out, _ := run.Output("docker-machine", "env", name, "--shell=bash")
+func (m *Machine) EvalEnv() {
+	out, _ := run.Output("docker-machine", "env", m.Name, "--shell=bash")
 	env := parseEnvOutput(out)
 	for k, v := range env {
 		os.Setenv(k, v)
@@ -49,23 +54,51 @@ func EvalEnv(name string) {
 }
 
 // PrintEvalHint shows a hint about running docker env if required
-func PrintEvalHint(name string, checkenv bool) {
+func (m *Machine) PrintEvalHint(checkenv bool) {
 	showhint := true
-	if checkenv == true && os.Getenv("DOCKER_MACHINE_NAME") == name {
+	if checkenv == true && os.Getenv("DOCKER_MACHINE_NAME") == m.Name {
 		showhint = false
 	}
 	if showhint == true {
 		fmt.Println("\nRun the following command to set this machine as your default:")
-		fmt.Printf("eval \"$(docker-machine env %s)\"\n", name)
+		fmt.Printf("eval \"$(docker-machine env %s)\"\n", m.Name)
 	}
 }
 
+// Exists checks if a VM exists
+func (m *Machine) Exists() bool {
+	out, _ := run.Output(VBoxManagePath(), "list", "vms")
+	re := regexp.MustCompile("(?mi)^\"" + m.Name + "\"")
+	return re.Match(out)
+}
+
 // IP returns the IP address of the docker machine
-func IP(name string) (ip string, success bool) {
-	out, _ := run.Output("docker-machine", "ip", name)
+func (m *Machine) IP() (ip string, success bool) {
+	out, _ := run.Output("docker-machine", "ip", m.Name)
 	ip = strings.Split(string(out), "\n")[0]
 	success = ValidIPv4(ip)
 	return
+}
+
+// ShareFolder adds a /workbench shared folder to the VM
+func (m *Machine) ShareFolder(folder string) {
+	args := []string{"sharedfolder", "add", m.Name, "--name", "workbench", "--hostpath", folder}
+	run.Run(VBoxManagePath(), args...)
+}
+
+// SSH into the docker machine to run a command
+func (m *Machine) SSH(command string) {
+	run.Run("docker-machine", "ssh", m.Name, command)
+}
+
+// Start the docker machine
+func (m *Machine) Start() {
+	run.Run("docker-machine", "start", m.Name)
+}
+
+// Stop the docker machine
+func (m *Machine) Stop() {
+	run.Run("docker-machine", "stop", m.Name)
 }
 
 // ValidIPv4 returns true for valid IPv4 addresses
@@ -74,36 +107,6 @@ func ValidIPv4(ip string) bool {
 	re, _ := regexp.Compile(`^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`)
 	return re.Match([]byte(ip))
 }
-
-// SSH into the docker machine to run a command
-func SSH(name, command string) {
-	run.Run("docker-machine", "ssh", name, command)
-}
-
-// Start the docker machine
-func Start(name string) {
-	run.Run("docker-machine", "start", name)
-}
-
-// Stop the docker machine
-func Stop(name string) {
-	run.Run("docker-machine", "stop", name)
-}
-
-// parseEnvOutput parses the output from `docker-machine env` and returns a map
-func parseEnvOutput(output []byte) map[string]string {
-	env := make(map[string]string)
-	for _, line := range strings.Split(string(output), "\n") {
-		re, _ := regexp.Compile(`export (.*?)="(.*)"`)
-		matches := re.FindStringSubmatch(line)
-		if len(matches) == 3 {
-			env[matches[1]] = matches[2]
-		}
-	}
-	return env
-}
-
-// VBoxManage Helpers
 
 // VBoxManagePath returns the path to the VBoxManage executable
 func VBoxManagePath() string {
@@ -117,15 +120,15 @@ func VBoxManagePath() string {
 	return path + "VBoxManage"
 }
 
-// Exists checks if a VM exists
-func Exists(name string) bool {
-	out, _ := run.Output(VBoxManagePath(), "list", "vms")
-	re := regexp.MustCompile("(?mi)^\"" + name + "\"")
-	return re.Match(out)
-}
-
-// ShareFolder adds a /workbench shared folder to the VM
-func ShareFolder(name, folder string) {
-	args := []string{"sharedfolder", "add", name, "--name", "workbench", "--hostpath", folder}
-	run.Run(VBoxManagePath(), args...)
+// parseEnvOutput parses the output from `docker-machine env` and returns a map
+func parseEnvOutput(output []byte) map[string]string {
+	env := make(map[string]string)
+	for _, line := range strings.Split(string(output), "\n") {
+		re, _ := regexp.Compile(`export (.*?)="(.*)"`)
+		matches := re.FindStringSubmatch(line)
+		if len(matches) == 3 {
+			env[matches[1]] = matches[2]
+		}
+	}
+	return env
 }

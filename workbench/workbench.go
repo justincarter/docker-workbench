@@ -14,7 +14,7 @@ import (
 	"github.com/justincarter/docker-workbench/machine"
 )
 
-// Workbench holds information about a workbench and its app
+// Workbench represents a workbench and its app
 type Workbench struct {
 	App  string
 	Name string
@@ -29,13 +29,15 @@ func NewWorkbench(requireApp bool) (*Workbench, error) {
 		App:  "*",
 		Name: filepath.Base(workdir),
 	}
+	m := &machine.Machine{Name: w.Name}
 
-	if !machine.Exists(w.Name) {
+	if !m.Exists() {
 		// get name from the parent of the current working directory
 		w.App = w.Name
 		w.Name = filepath.Base(filepath.Dir(workdir))
+		m.Name = w.Name
 
-		if !machine.Exists(w.Name) {
+		if !m.Exists() {
 			err = fmt.Errorf("Workbench machine '%s' not found.", w.App)
 		}
 	}
@@ -45,9 +47,16 @@ func NewWorkbench(requireApp bool) (*Workbench, error) {
 	return w, err
 }
 
+// IP returns the IP address of the workbench machine
+func (w *Workbench) IP() (string, bool) {
+	m := &machine.Machine{Name: w.Name}
+	ip, ok := m.IP()
+	return ip, ok
+}
+
 // PrintWorkbenchInfo prints the application URL using the app name and machine IP of the workbench
 func (w *Workbench) PrintWorkbenchInfo() {
-	ip, ok := machine.IP(w.Name)
+	ip, ok := w.IP()
 	if ok == true {
 		fmt.Println("\nBrowse the workbench using:")
 		fmt.Printf("http://%s.%s.nip.io/\n", w.App, ip)
