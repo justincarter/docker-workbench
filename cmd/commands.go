@@ -109,9 +109,8 @@ func Up(c *cli.Context) error {
 		os.Exit(1)
 	}
 
-	m := &machine.Machine{Name: w.Name}
-	m.Start()
-	m.PrintEvalHint(true)
+	w.Start()
+	w.PrintEvalHint(true)
 	if w.App != "*" {
 		fmt.Println("\nStart the application:")
 		fmt.Println("docker-compose up")

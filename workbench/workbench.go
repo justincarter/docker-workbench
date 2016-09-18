@@ -16,8 +16,8 @@ import (
 
 // Workbench represents a workbench and its app
 type Workbench struct {
-	App  string
-	Name string
+	machine.Machine
+	App string
 }
 
 // NewWorkbench creates a new workbench
@@ -28,13 +28,11 @@ func NewWorkbench() (*Workbench, error) {
 	name := filepath.Base(workdir)
 
 	// set up workbench
-	w := &Workbench{
-		App:  "*",
-		Name: name,
-	}
+	w := new(Workbench)
+	w.App = "*"
+	w.Name = name
 
-	m := &machine.Machine{Name: w.Name}
-	if !m.Exists() {
+	if !w.Exists() {
 		// get name from the parent of the current working directory
 		name := filepath.Base(filepath.Dir(workdir))
 
@@ -42,20 +40,12 @@ func NewWorkbench() (*Workbench, error) {
 		w.App = w.Name
 		w.Name = name
 
-		m.Name = name
-		if !m.Exists() {
+		if !w.Exists() {
 			err = fmt.Errorf("Workbench machine '%s' not found.", w.App)
 		}
 	}
 
 	return w, err
-}
-
-// IP returns the IP address of the workbench machine
-func (w *Workbench) IP() (string, bool) {
-	m := &machine.Machine{Name: w.Name}
-	ip, ok := m.IP()
-	return ip, ok
 }
 
 // PrintWorkbenchInfo prints the application URL using the app name and machine IP of the workbench
