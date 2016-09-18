@@ -78,24 +78,26 @@ func Create(c *cli.Context) error {
 	// get name from the current working directory
 	workdir, _ := os.Getwd()
 	name := filepath.Base(workdir)
+
 	m := &machine.Machine{Name: name}
-
-	if !m.Exists() {
-		m.Create()
-		m.EvalEnv()
-
-		fmt.Println("Configuring bootsync.sh...")
-		m.SSH("sudo echo 'sudo mkdir -p /workbench && sudo mount -t vboxsf -o uid=1000,gid=50 workbench /workbench' >  /tmp/bootsync.sh")
-		m.SSH("sudo cp /tmp/bootsync.sh /var/lib/boot2docker/bootsync.sh")
-		m.SSH("sudo chmod +x /var/lib/boot2docker/bootsync.sh")
-
-		fmt.Println("Installing workbench apps...")
-		m.SSH("docker run -d --restart=always --name=workbench_proxy -p 80:80 -v '/var/run/docker.sock:/tmp/docker.sock:ro' daemonite/workbench-proxy")
-		m.Stop()
-
-		fmt.Println("Adding /workbench shared folder...")
-		m.ShareFolder(workdir)
+	if m.Exists() {
+		return Up(c)
 	}
+
+	m.Create()
+	m.EvalEnv()
+
+	fmt.Println("Configuring bootsync.sh...")
+	m.SSH("sudo echo 'sudo mkdir -p /workbench && sudo mount -t vboxsf -o uid=1000,gid=50 workbench /workbench' >  /tmp/bootsync.sh")
+	m.SSH("sudo cp /tmp/bootsync.sh /var/lib/boot2docker/bootsync.sh")
+	m.SSH("sudo chmod +x /var/lib/boot2docker/bootsync.sh")
+
+	fmt.Println("Installing workbench apps...")
+	m.SSH("docker run -d --restart=always --name=workbench_proxy -p 80:80 -v '/var/run/docker.sock:/tmp/docker.sock:ro' daemonite/workbench-proxy")
+	m.Stop()
+
+	fmt.Println("Adding /workbench shared folder...")
+	m.ShareFolder(workdir)
 
 	m.Start()
 	m.EvalEnv()
