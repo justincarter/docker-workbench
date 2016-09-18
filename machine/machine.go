@@ -67,7 +67,7 @@ func (m *Machine) PrintEvalHint(checkenv bool) {
 
 // Exists checks if a VM exists
 func (m *Machine) Exists() bool {
-	out, _ := run.Output(VBoxManagePath(), "list", "vms")
+	out, _ := run.Output(run.VBoxManagePath(), "list", "vms")
 	re := regexp.MustCompile("(?mi)^\"" + m.Name + "\"")
 	return re.Match(out)
 }
@@ -83,7 +83,7 @@ func (m *Machine) IP() (ip string, success bool) {
 // ShareFolder adds a /workbench shared folder to the VM
 func (m *Machine) ShareFolder(folder string) {
 	args := []string{"sharedfolder", "add", m.Name, "--name", "workbench", "--hostpath", folder}
-	run.Run(VBoxManagePath(), args...)
+	run.Run(run.VBoxManagePath(), args...)
 }
 
 // SSH into the docker machine to run a command
@@ -106,18 +106,6 @@ func ValidIPv4(ip string) bool {
 	// validate IP address
 	re, _ := regexp.Compile(`^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$`)
 	return re.Match([]byte(ip))
-}
-
-// VBoxManagePath returns the path to the VBoxManage executable
-func VBoxManagePath() string {
-	path := os.Getenv("VBOX_INSTALL_PATH")
-	if path == "" {
-		path = os.Getenv("VBOX_MSI_INSTALL_PATH")
-	}
-	if path != "" && path[len(path)-1:] != string(os.PathSeparator) {
-		path += string(os.PathSeparator)
-	}
-	return path + "VBoxManage"
 }
 
 // parseEnvOutput parses the output from `docker-machine env` and returns a map

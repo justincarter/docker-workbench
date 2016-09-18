@@ -18,3 +18,15 @@ func Output(command string, args ...string) ([]byte, error) {
 	cmd := exec.Command(command, args...)
 	return cmd.Output()
 }
+
+// VBoxManagePath returns the path to the VBoxManage executable
+func VBoxManagePath() string {
+	path := os.Getenv("VBOX_INSTALL_PATH")
+	if path == "" {
+		path = os.Getenv("VBOX_MSI_INSTALL_PATH")
+	}
+	if path != "" && path[len(path)-1:] != string(os.PathSeparator) {
+		path += string(os.PathSeparator)
+	}
+	return path + "VBoxManage"
+}

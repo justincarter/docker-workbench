@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/justincarter/docker-workbench/machine"
+	"github.com/justincarter/docker-workbench/run"
 	"github.com/justincarter/docker-workbench/workbench"
 	"github.com/urfave/cli"
 )
@@ -54,7 +55,7 @@ func FlightCheck() error {
 	if len(missing) > 0 {
 		return fmt.Errorf("docker-workbench: %s was not found. Make sure you have installed Docker Toolbox", strings.Join(missing, ", "))
 	}
-	if _, err := exec.LookPath(machine.VBoxManagePath()); err != nil {
+	if _, err := exec.LookPath(run.VBoxManagePath()); err != nil {
 		return fmt.Errorf("docker-workbench: VBoxManage was not found. Make sure you have installed VirtualBox")
 	}
 
