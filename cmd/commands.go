@@ -103,7 +103,7 @@ func Create(c *cli.Context) error {
 	m.EvalEnv()
 	m.PrintEvalHint(false)
 
-	w, _ := workbench.NewWorkbench(false)
+	w, _ := workbench.NewWorkbench()
 	w.PrintWorkbenchInfo()
 
 	return nil
@@ -111,7 +111,7 @@ func Create(c *cli.Context) error {
 
 // Up command
 func Up(c *cli.Context) error {
-	w, err := workbench.NewWorkbench(false)
+	w, err := workbench.NewWorkbench()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -131,15 +131,19 @@ func Up(c *cli.Context) error {
 
 // Proxy command
 func Proxy(c *cli.Context) error {
-	w, err := workbench.NewWorkbench(true)
+	w, err := workbench.NewWorkbench()
 	if err != nil {
 		fmt.Println(err)
+		os.Exit(1)
+	}
+	if w.App == "*" {
+		fmt.Printf("Could not find the app to proxy for Workbench machine '%s'. Try running from an app directory?\n", w.Name)
 		os.Exit(1)
 	}
 
 	ip, ok := w.IP()
 	if !ok {
-		fmt.Println("\nCould not find the IP address for this workbench. Have you run docker-workbench up?")
+		fmt.Println("Could not find the IP address for this workbench. Have you run docker-workbench up?")
 		os.Exit(1)
 	}
 

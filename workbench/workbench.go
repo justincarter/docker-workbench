@@ -20,30 +20,34 @@ type Workbench struct {
 	Name string
 }
 
-// NewWorkbench creates a new workbench object
-func NewWorkbench(requireApp bool) (*Workbench, error) {
+// NewWorkbench creates a new workbench
+func NewWorkbench() (*Workbench, error) {
 	var err error
 	// get name from the current working directory
 	workdir, _ := os.Getwd()
+	name := filepath.Base(workdir)
+
+	// set up workbench
 	w := &Workbench{
 		App:  "*",
-		Name: filepath.Base(workdir),
+		Name: name,
 	}
-	m := &machine.Machine{Name: w.Name}
 
+	m := &machine.Machine{Name: w.Name}
 	if !m.Exists() {
 		// get name from the parent of the current working directory
-		w.App = w.Name
-		w.Name = filepath.Base(filepath.Dir(workdir))
-		m.Name = w.Name
+		name := filepath.Base(filepath.Dir(workdir))
 
+		// set up workbench
+		w.App = w.Name
+		w.Name = name
+
+		m.Name = name
 		if !m.Exists() {
 			err = fmt.Errorf("Workbench machine '%s' not found.", w.App)
 		}
 	}
-	if requireApp == true && w.App == "*" {
-		err = fmt.Errorf("\nCould not find the app to proxy for Workbench machine '%s'. Try running from an app directory?", w.Name)
-	}
+
 	return w, err
 }
 
