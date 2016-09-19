@@ -53,7 +53,7 @@ To use `docker-workbench` you will also need to install the following;
 
 ## Usage
 
-    docker-workbench v1.3
+    docker-workbench v1.4
     Provision a Docker Workbench for use with docker-machine and docker-compose
 
     Usage:
