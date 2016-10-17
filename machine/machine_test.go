@@ -28,3 +28,31 @@ export DOCKER_MACHINE_NAME="workbench"
 	}
 
 }
+
+func TestValidIPv4_Valid(t *testing.T) {
+	ips := []string{
+		"192.168.0.1",
+		"10.0.0.1",
+		"172.10.10.10",
+		"192.168.99.1",
+	}
+	for _, k := range ips {
+		valid := ValidIPv4(k)
+		if !valid {
+			t.Fail()
+		}
+	}
+}
+
+func TestValidIPv4_Invalid(t *testing.T) {
+	ips := []string{
+		"invalid string",
+		"::1",
+	}
+	for _, k := range ips {
+		valid := ValidIPv4(k)
+		if valid {
+			t.Fail()
+		}
+	}
+}
