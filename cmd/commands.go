@@ -90,8 +90,8 @@ func Create(c *cli.Context) error {
 		m.SSH("sudo cp /tmp/bootsync.sh /var/lib/boot2docker/bootsync.sh")
 		m.SSH("sudo chmod +x /var/lib/boot2docker/bootsync.sh")
 
-		fmt.Println("Installing workbench apps...")
-		m.SSH("docker run -d --restart=always --name=workbench_proxy -p 80:80 -v '/var/run/docker.sock:/tmp/docker.sock:ro' daemonite/workbench-proxy")
+		fmt.Println("Installing Docker Workbench Proxy...")
+		m.SSH("docker run -d --restart=always --name=docker_workbench_proxy -p 80:80 -v '/var/run/docker.sock:/tmp/docker.sock:ro' justincarter/docker-workbench-proxy")
 		m.Stop()
 
 		fmt.Println("Adding /workbench shared folder...")
