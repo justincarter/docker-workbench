@@ -29,23 +29,49 @@ The primary goals of `docker-workbench` are;
 
 ### 2. Install Docker Workbench
 
-To install `docker-workbench`;
+To install `docker-workbench` using Go;
 
-1. Run `go get -u github.com/justincarter/docker-workbench`
+    go get -u github.com/justincarter/docker-workbench
 
 ### 3. Install Additional Requirements
 
 To use `docker-workbench` you will also need to install the following;
 
-#### For Windows and Mac
+#### For Windows
 
-1. Docker Toolbox (docker, docker-machine, docker-compose) (https://www.docker.com/products/docker-toolbox)
-2. Oracle VirtualBox 5.x (https://www.virtualbox.org/)
-3. Git Bash (https://git-for-windows.github.io/) (for Windows only)
+1. Oracle VirtualBox 5.x (https://www.virtualbox.org/)
+2. Git Bash (https://git-for-windows.github.io/)
+3. Docker CLI Tools (docker, docker-machine, docker-compose) 
+
+You can install the Docker CLI Tools by first installing Chocolatey;  
+https://chocolatey.org/
+
+Then from an Administrative Command Prompt;
+
+    C:\> chocolatey install docker
+    C:\> chocolatey install docker-machine
+    C:\> chocolatey install docker-compose
+
+Alternatively you can install the legacy Docker Toolbox for Windows (https://docs.docker.com/toolbox/toolbox_install_windows/). Note: Do not enable Hyper-V when prompted, otherwise Virtualbox will not work.
+
+#### For Mac
+
+1. Oracle VirtualBox 5.x (https://www.virtualbox.org/)
+2. Docker CLI Tools (docker, docker-machine, docker-compose) 
+
+You can install the Docker CLI Tools by first installing Homebrew;  
+https://brew.sh/
+
+    $ brew install docker
+    $ install docker-machine
+    $ install docker-compose
+```
+
+Alternatively you can install the legacy Docker Toolbox for Mac (https://docs.docker.com/toolbox/toolbox_install_mac/).
 
 #### For Linux
 
-1. Docker Engine (https://docs.docker.com/engine/installation/)
+1. Docker Engine (https://docs.docker.com/install/)
 2. Docker Machine (https://docs.docker.com/machine/install-machine/)
 3. Docker Compose (https://docs.docker.com/compose/install/)
 4. Oracle VirtualBox 5.x (https://www.virtualbox.org/)
