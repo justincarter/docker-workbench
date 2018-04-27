@@ -65,7 +65,6 @@ https://brew.sh/
     $ brew install docker
     $ install docker-machine
     $ install docker-compose
-```
 
 Alternatively you can install the legacy Docker Toolbox for Mac (https://docs.docker.com/toolbox/toolbox_install_mac/).
 
