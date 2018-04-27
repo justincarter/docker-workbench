@@ -63,8 +63,8 @@ You can install the Docker CLI Tools by first installing Homebrew;
 https://brew.sh/
 
     $ brew install docker
-    $ install docker-machine
-    $ install docker-compose
+    $ brew install docker-machine
+    $ brew install docker-compose
 
 Alternatively you can install the legacy Docker Toolbox for Mac (https://docs.docker.com/toolbox/toolbox_install_mac/).
 
