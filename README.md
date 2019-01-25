@@ -270,9 +270,9 @@ It's worth noting that even though your machines in this scenario would be calle
 This also means that you can always run an app inside a Docker Workbench, regardless of what its name is, without modifying the `docker-compose.yml` file.
 
 
-### Troubleshooting
+## Troubleshooting
 
-#### Destroy and recreate your Docker Workbench
+### Destroy and recreate your Docker Workbench
 
 There are a number of reasons that a Docker VM or your Docker Workbench may get into a bad state, such as invalid networking configurations, a full virtual disk, a missing or accidentally deleted docker-workbench-proxy container, etc. The Docker Workbench can and should be recreated often to update to newer versions of Docker or to resolve issues that can't be easily debugged by the end user.
 
@@ -284,7 +284,7 @@ To destroy your Docker Workbench and recreate it fresh with the latest version o
 
 Within a few minutes you should be back up and running as normal.
 
-#### Keep your CLI Tools up to date
+### Keep your CLI Tools up to date
 
 Remember to keep your Docker CLI tools up to date as newer versions of Docker and boot2docker are released. Upgrading to the latest versions on Windows using Chocolatey can be done from an Administrative Command Prompt;
 
