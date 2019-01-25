@@ -137,7 +137,7 @@ With Docker Workbench it is a requirement to use highly consistent naming for fo
 The `docker-compose.yml` file for "myapp" looks like this:
 
     myapp:
-      image: lucee/lucee4-nginx
+      image: lucee/lucee:nginx
       environment:
         - "VIRTUAL_HOST=myapp.*"
       volumes:
@@ -182,12 +182,14 @@ When the application finishes starting up you will be able to browse to the app 
     myapp_1 | SERVER CONTEXT
     myapp_1 | -------------------------------------------------------------------
     myapp_1 | - config:/opt/lucee/server/lucee-server/context
-    myapp_1 | - loader-version:4.3
+    myapp_1 | - loader-version:6.1
     myapp_1 | ===================================================================
     myapp_1 |
-    myapp_1 | 2016-06-17 08:47:17,423 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs) myapp_1 | 2016-06-17 08:47:17,423 INFO success: lucee entered RUNNING state, process has stayed up for > than 1 seconds (startsecs) myapp_1 | Fri Jun 17 08:47:17 UTC 2016-464 using JRE Date Library
-    myapp_1 | Fri Jun 17 08:47:17 UTC 2016-756 Start CFML Controller
-    myapp_1 | Fri Jun 17 08:47:17 UTC 2016 Loaded Lucee Version 4.5.2.018
+    myapp_1 | 2010-01-25 08:47:17,423 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs) 
+    myapp_1 | 2010-01-25 08:47:17,423 INFO success: lucee entered RUNNING state, process has stayed up for > than 1 seconds (startsecs) 
+    myapp_1 | Fri Jan 25 08:47:17 UTC 2019-464 using JRE Date Library
+    myapp_1 | Fri Jan 25 08:47:17 UTC 2019-756 Start CFML Controller
+    myapp_1 | Fri Jan 25 08:47:17 UTC 2019 Loaded Lucee Version 5.3.1.92
     myapp_1 | ===================================================================
     myapp_1 | WEB CONTEXT (cbe856ff790c9ba5208811309bdf168b)
     myapp_1 | -------------------------------------------------------------------
@@ -197,9 +199,9 @@ When the application finishes starting up you will be able to browse to the app 
     myapp_1 | - label:cbe856ff790c9ba5208811309bdf168b
     myapp_1 | ===================================================================
     myapp_1 |
-    myapp_1 | 17-Jun-2016 08:47:18.029 INFO [main] org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler ["http-apr-8888"]
-    myapp_1 | 17-Jun-2016 08:47:18.034 INFO [main] org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler ["ajp-apr-8009"]
-    myapp_1 | 17-Jun-2016 08:47:18.035 INFO [main] org.apache.catalina.startup.Catalina.start Server startup in 1003 ms
+    myapp_1 | 25-Jan-2019 08:47:18.029 INFO [main] org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler ["http-apr-8888"]
+    myapp_1 | 25-Jan-2019 08:47:18.034 INFO [main] org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler ["ajp-apr-8009"]
+    myapp_1 | 25-Jan-2019 08:47:18.035 INFO [main] org.apache.catalina.startup.Catalina.start Server startup in 1003 ms
 
 Any containerised web application that listens on port 80 should be able to work with Docker Workbench. 
 
@@ -261,7 +263,7 @@ In this scenario you would create two VMs by running `docker-workbench create` f
 It's worth noting that even though your machines in this scenario would be called `clientA` and `clientB`, the shared folder inside the VM which is referred to in your `docker-compose.yml` file will always be named `/workbench` (the shared folder name inside the VM is not named after the VM). A `docker-compose.yml` file for clientB's "anotherapp" might look like this;
 
     anotherapp:
-        image: lucee/lucee4-nginx
+        image: lucee/lucee:nginx
         environment:
             - "VIRTUAL_HOST=anotherapp.*"
         volumes:
