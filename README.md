@@ -268,3 +268,37 @@ It's worth noting that even though your machines in this scenario would be calle
             - "/workbench/anotherapp/www:/var/www"
 
 This also means that you can always run an app inside a Docker Workbench, regardless of what its name is, without modifying the `docker-compose.yml` file.
+
+
+### Troubleshooting
+
+#### Destroy and recreate your Docker Workbench
+
+There are a number of reasons that a Docker VM or your Docker Workbench may get into a bad state, such as invalid networking configurations, a full virtual disk, a missing or accidentally deleted docker-workbench-proxy container, etc. The Docker Workbench can and should be recreated often to update to newer versions of Docker or to resolve issues that can't be easily debugged by the end user.
+
+To destroy your Docker Workbench and recreate it fresh with the latest version of boot2docker, use `docker-machine` to remove the machine by name (in this case our machine is relative to `/d/workbench` and is called `workbench`), and then `docker-workbench` to create it again;
+
+    $ cd /d/workbench
+    $ docker-machine rm workbench
+    $ docker-workbench create
+
+Within a few minutes you should be back up and running as normal.
+
+#### Keep your CLI Tools up to date
+
+Remember to keep your Docker CLI tools up to date as newer versions of Docker and boot2docker are released. Upgrading to the latest versions on Windows using Chocolatey can be done from an Administrative Command Prompt;
+
+    C:\> chocolatey upgrade docker
+    C:\> chocolatey upgrade docker-machine
+    C:\> chocolatey upgrade docker-compose
+
+Or similarly on MacOS using brew;
+
+    brew upgrade docker
+    brew upgrade docker-machine
+    brew upgrade docker-compose
+
+This should avoid errors with older Docker client tools trying to connect to newer Docker servers, which may throw an error such as;
+
+    ERROR: SSL error: [SSL: TLSV1_ALERT_PROTOCOL_VERSION] tlsv1 alert protocol version (_ssl.c:661)
+
