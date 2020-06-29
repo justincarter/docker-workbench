@@ -302,5 +302,6 @@ Or similarly on MacOS using brew;
 
 This should avoid errors with older Docker client tools trying to connect to newer Docker servers, which may throw an error such as;
 
-    ERROR: SSL error: [SSL: TLSV1_ALERT_PROTOCOL_VERSION] tlsv1 alert protocol version (_ssl.c:661)
+> Error checking TLS connection: Error checking and/or regenerating the certs: There was an error validating certificates for host "192.168.99.100:2376": x509: certificate has expired or is not yet valid
 
+> ERROR: SSL error: [SSL: TLSV1_ALERT_PROTOCOL_VERSION] tlsv1 alert protocol version (_ssl.c:661)
