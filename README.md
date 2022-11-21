@@ -31,7 +31,7 @@ The primary goals of `docker-workbench` are;
 
 To install `docker-workbench` using Go;
 
-    go get -u github.com/justincarter/docker-workbench
+    go install github.com/justincarter/docker-workbench@latest
 
 ### 3. Install Additional Requirements
 
